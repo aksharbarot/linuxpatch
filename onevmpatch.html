@@ -1,0 +1,63 @@
+<html>
+<head>
+<link rel="stylesheet" href="//code.jquery.com/mobile/1.5.0-alpha.1/jquery.mobile-1.5.0-alpha.1.min.css">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="//code.jquery.com/mobile/1.5.0-alpha.1/jquery.mobile-1.5.0-alpha.1.min.js"></script>
+<style>
+.host-submit { display: inline-block;}
+.host-submit .ui-textinput { width: 18rem; display: inline-block;}
+.host-submit .ui-selectmenu { width: 12rem; display: inline-block; position: relative;}
+.host-submit .ui-selectmenu-button { position: absolute; top:-23px; left: 7px; height: 20px;}
+.host-submit .ui-selectmenu-button #zone,#zone1,#zone2{ padding: 6px;}
+.host-submit button { width: 7rem; display: inline-block; height: 43px;}
+</style>
+</head>
+<center>
+<center> <h1><p style="border:2px; border-style:groove; border-color:#FF0000; padding: 1em;">Automated Linux Patching Portal</p></h1></center>
+<p><b>Note:</b></p>
+<p><font color="blue">This UI is for Single VM Patching</font></p>
+<p><font color="black">Provide IP address and prod/dev env name</font></p>
+
+<script>
+function myFunction() {
+    alert("**Click OK process further**\n\n##Wait for result now in same page##");
+}
+</script>
+<span>1. Provide VM Patching Details:-</span>
+<div class="host-submit">
+ <input type="text" name="IP" placeholder="IP ADDR of VM" id="ip5"/>
+ <input type="text" name="IP" placeholder="prod/dev" id="ip15"/>
+<button id="btnSave3" class="show-page-loading-msg" data-theme="b" data-textonly="false" data-textvisible="true" data-msgtext="Loading">Click</button>
+</div>
+<br/>
+
+<div id="result"></div>
+
+<script>
+$(function(){
+$("#btnSave3").click(function () {
+fullurl = `http://10.200.129.74:9910/api/avmpatch/${$('#ip5').val()}/${$('#ip15').val()}`;
+var $this = $( this ),
+  theme = $this.jqmData( "theme" ) || $.mobile.loader.prototype.options.theme,
+  msgText = $this.jqmData( "msgtext" ) || $.mobile.loader.prototype.options.text,
+  textVisible = $this.jqmData( "textvisible" ) || $.mobile.loader.prototype.options.textVisible,
+  textonly = !!$this.jqmData( "textonly" );
+  html = $this.jqmData( "html" ) || "";
+$.mobile.loading( 'show', {
+  text: msgText,
+  textVisible: textVisible,
+  theme: theme,
+  textonly: textonly,
+  html: html
+  });
+$.get( fullurl, function( data ) {
+  $('#result').html(data.output);
+  $.mobile.loading( "hide" );
+});
+});
+
+})
+</script>
+</center>
+</body>
+</html>
