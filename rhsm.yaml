@@ -1,0 +1,123 @@
+---
+- name: one vm patch
+  hosts: "{{ bip }}"
+  gather_facts: yes
+  become: no
+
+  tasks:
+
+  - name: test
+    redhat_subscription:
+      state: absent
+    delegate_to: "{{ bip }}"
+    ignore_errors: yes
+
+  - name: Update the Redhat Subscription-RHEL8-DEV
+    redhat_subscription:
+      state: present
+      activationkey: rhel8-virt-dev.key
+      org_id: "DEMO"
+      force_register: true
+    when: ansible_distribution_major_version == "8" and envkey == "dev"
+    delegate_to: "{{ bip }}"
+    ignore_errors: yes
+
+  - name: Update the Redhat Subscription-RHEL8-PROD
+    redhat_subscription:
+      state: present
+      activationkey: rhel8-virt-prod.key
+      org_id: "DEMO"
+      force_register: true
+    when: ansible_distribution_major_version == "8" and envkey == "prod"
+    delegate_to: "{{ bip }}"
+    ignore_errors: yes
+
+  - name: Update the Redhat Subscription-RHEL7-DEV
+    redhat_subscription:
+      state: present
+      activationkey: rhel7-virt-dev.key
+      org_id: "DEMO"
+      force_register: true
+    when: ansible_distribution_major_version == "7" and envkey == "dev"
+    delegate_to: "{{ bip }}"
+    ignore_errors: yes
+
+  - name: Update the Redhat Subscription-RHEL7-PROD
+    redhat_subscription:
+      state: present
+      activationkey: rhel7-virt-prod.key
+      org_id: "DEMO"
+      force_register: true
+    when: ansible_distribution_major_version == "7" and envkey == "prod"
+    delegate_to: "{{ bip }}"
+    ignore_errors: yes
+
+  - name: Update the Redhat Subscription-RHEL6-DEV
+    redhat_subscription:
+      state: present
+      activationkey: rhel6-virt-dev.key
+      org_id: "DEMO"
+      force_register: true
+    when: ansible_distribution_major_version == "6" and envkey == "dev"
+    ignore_errors: yes
+    delegate_to: "{{ bip }}"
+
+  - name: Update the Redhat Subscription-RHEL6-PROD
+    redhat_subscription:
+      state: present
+      activationkey: rhel6-virt-prod.key
+      org_id: "DEMO"
+      force_register: true
+    when: ansible_distribution_major_version == "6" and envkey == "prod"
+    delegate_to: "{{ bip }}"
+    ignore_errors: yes
+
+
+
+  - name: upgrade all packages
+    yum:
+      name: '*'
+      state: latest
+    delegate_to: "{{ bip }}"
+
+
+  - name: Reboot Server if Necessary
+    command: shutdown -r now "Ansible Updates Triggered"
+    become: true
+    async: 30
+    poll: 0
+    delegate_to: "{{ bip }}"
+
+  - name: Pausing to allow server to shutdown and terminate our SSH connection
+    pause: seconds=30
+    delegate_to: "{{ bip }}"
+
+  - name: Wait for reboot to complete and SSH to become available
+    local_action: wait_for host={{ inventory_hostname }} port=22
+        state=started delay=30 timeout=600
+    retries: 30
+    delay: 10
+    delegate_to: "{{ bip }}"
+
+  - name: removal of subscription
+    command: subscription-manager remove --all
+    delegate_to: "{{ bip }}"
+    ignore_errors: yes
+
+  - name: removal of subscription1
+    command: subscription-manager unregister
+    delegate_to: "{{ bip }}"
+    ignore_errors: yes
+
+
+  - name: removal of sub2
+    command: subscription-manager clean
+    delegate_to: "{{ bip }}"
+    ignore_errors: yes
+
+
+  - name: Final check for removal
+    redhat_subscription:
+      state: absent
+    delegate_to: "{{ bip }}"
+    ignore_errors: yes
